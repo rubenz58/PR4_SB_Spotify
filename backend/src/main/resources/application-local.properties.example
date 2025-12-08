@@ -1,0 +1,14 @@
+# Local Development Configuration Template
+# Copy this file to application-local.properties and fill in your values
+
+# JWT Configuration
+jwt.secret=your-secret-key-here
+jwt.expiration=86400000
+
+# Server Configuration
+server.port=8080
+
+# Database Configuration (add when needed)
+# spring.datasource.url=jdbc:postgresql://localhost:5432/spotify
+# spring.datasource.username=postgres
+# spring.datasource.password=your-password
