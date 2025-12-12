@@ -3,7 +3,6 @@ package com.spotify.backend.service;
 import com.spotify.backend.entity.User;
 import com.spotify.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,12 +34,23 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User login(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Invalid credentials");
+        }
+
+        return user;
+    }
+
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByName(username);
+    public Optional<User> findByName(String name) {
+        return userRepository.findByName(name);
     }
 
     public Optional<User> findById(Long id) {
@@ -51,7 +61,7 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByName(username);
+    public boolean existsByName(String name) {
+        return userRepository.existsByName(name);
     }
 }

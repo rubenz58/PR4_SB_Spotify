@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,13 +24,6 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> signup(@RequestBody Map<String, String> request) {
         try {
-            // 1. Validate info- Password and email.
-            // -> Throw errors
-            // 2. Create new User
-            // -> Hash password
-            // 3. Push User to DB via Repository
-            // 4. Generate JWT
-            // 5. Return correct message.
             User user = userService.createUser(
                     request.get("email"),
                     request.get("name"),
@@ -61,9 +55,33 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, Object> login(@RequestBody Map<String, String> request) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
         // TODO: Implement login logic
-        return Map.of("message", "Login endpoint");
+        // 1. Check if email is in DB
+        // 2. Check if password matches the hash.
+        // 3. return in correct format.
+        try {
+            User user = userService.login(
+                    request.get("email"),
+                    request.get("password")
+            );
+
+            String token = jwtService.generateToken(user);
+
+            UserDTO userDTO = new UserDTO(user);
+
+            Map<String, Object> response = Map.of(
+                    "message", "User logged in successfully",
+                    "token", token,
+                    "user", userDTO
+            );
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/logout")
