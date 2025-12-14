@@ -8,6 +8,7 @@ import com.spotify.backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -56,7 +57,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
-        // TODO: Implement login logic
         // 1. Check if email is in DB
         // 2. Check if password matches the hash.
         // 3. return in correct format.
@@ -85,14 +85,16 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public Map<String, Object> logout() {
-        // TODO: Implement logout logic
-        return Map.of("message", "Logout endpoint");
+    public ResponseEntity<Map<String, Object>> logout() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("message", "User logged out"));
     }
 
     @GetMapping("/me")
-    public Map<String, Object> me() {
-        // TODO: Implement get current user logic
-        return Map.of("message", "Get current user endpoint");
+    public ResponseEntity<Map<String, Object>> me(@AuthenticationPrincipal String userId) {
+        User user = userService.findById(Long.parseLong(userId))
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("user", new UserDTO(user)));
     }
 }
